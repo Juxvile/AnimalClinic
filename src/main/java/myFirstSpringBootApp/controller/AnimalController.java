@@ -17,11 +17,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/animals")
 public class AnimalController {
-    AnimalService animalService;
-    @Autowired
-    public void setAnimalService (AnimalService animalService) {
+//    public AnimalService animalService;
+//    @Autowired
+//    public void setAnimalService (AnimalService animalService) {
+//        this.animalService = animalService;
+//    }
+    public final AnimalService animalService;
+    public AnimalController(AnimalService animalService){
         this.animalService = animalService;
     }
+
 
 
     @GetMapping

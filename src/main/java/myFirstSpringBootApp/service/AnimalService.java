@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AnimalService {
     @Autowired
-    AnimalRepo animalRepo;
+    public AnimalRepo animalRepo;
 
     public void addAnimal(Animal animal) {
         animalRepo.save(animal);
