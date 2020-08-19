@@ -13,6 +13,6 @@ public class JpaAuditionConfiguration {
 
     @Bean
     public AuditorAware auditorAware(){
-        return () -> Optional.empty();
+        return Optional::empty;
     }
 }
