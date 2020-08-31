@@ -2,7 +2,8 @@ package myFirstSpringBootApp.domain;
 
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import myFirstSpringBootApp.validation.UniqueEmail;
+import myFirstSpringBootApp.validation.UniqueUsername;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,10 +15,12 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Entity
 @Table(name = "users")
 @Data
+@UniqueEmail(message = "Enter the unique email")
+@UniqueUsername
 public class User extends AbstractEntity implements UserDetails {
 
     @Id
@@ -47,6 +50,10 @@ public class User extends AbstractEntity implements UserDetails {
     @Email
     @NotBlank
     private String email;
+
+    private boolean active;
+
+    private String activationCode;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;

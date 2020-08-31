@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.util.Map;
@@ -24,7 +25,12 @@ public class RegistrationController {
     private final UserService userService;
 
     @GetMapping
-    public String form (){
+    public String form (
+            @RequestParam(name = "editUser", required = false, defaultValue = "") User user,
+            Model model
+    ){
+        model.addAttribute("user", user);
+        model.addAttribute("users", userService.users());
         return "registration";
     }
 
@@ -34,20 +40,16 @@ public class RegistrationController {
             BindingResult bindingResult,
             Model model
             ){
+
         if (bindingResult.hasErrors()) {
+            model.addAttribute("users", userService.users());
             Map<String, String> errorsMap = ControllerUtils.getErrors(bindingResult);
             model.mergeAttributes(errorsMap);
-            model.addAttribute("user", user);
-
-
             return "registration";
-        } else {
 
-            if (userService.addUser(user)) {
+        } else {
+                userService.addUser(user);
                 return "redirect:/animals";
-            } else {
-                return "registration";
-            }
         }
     }
 }
