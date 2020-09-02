@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import myFirstSpringBootApp.domain.Role;
 import myFirstSpringBootApp.domain.User;
 import myFirstSpringBootApp.repository.UserRepo;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,59 +15,65 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class UserService implements UserDetailsService {
 
     public final UserRepo userRepo;
     public final MailSenderService mailSenderService;
 
+
     public void addUser(User user) {
 
-
-        user.setActivationCode(UUID.randomUUID().toString());
         user.setRoles(Collections.singleton(Role.USER));
         user.setActive(false);
+        user.setActivationCode(UUID.randomUUID().toString());
+
         userRepo.save(user);
 
         sendMessage(user);
-
     }
-        public List<User> users() {
-            return userRepo.findAll();
-        }
+
+
+    public List<User> users(){
+        return userRepo.findAll(Sort.by("username"));
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         User user = userRepo.findByUsername(username);
         if (user == null){
             throw new UsernameNotFoundException("User not found");
         }
+
         return user;
     }
 
-    private void sendMessage (User user){
-        if(StringUtils.isEmpty(user.getEmail())){
+
+    private void sendMessage(User user){
+        if(!StringUtils.isEmpty(user.getEmail())){
+
             String message = String.format(
                     "Hello, %s! \n" +
-                            "Welcome to animal clinic. " +
-                            "Please visit next link http://localhost:8080/activate/%s",
-                    user.getActivationCode(),
-                    user.getUsername()
+                            "Welcome to animali clinic. Please visit next link http://localhost:8080/activate/%s",
+                    user.getUsername(),
+                    user.getActivationCode()
             );
-
 
             mailSenderService.send(user.getEmail(), "Activation code", message);
         }
     }
 
-    public boolean activateUser(String code){
 
+    public boolean activateUser(String code){
         User userByCode = userRepo.findByActivationCode(code);
 
-        if (userByCode == null) {
+        if (userByCode == null){
             return false;
         } else {
+
             userByCode.setActivationCode(null);
             userByCode.setActive(true);
 
@@ -74,18 +81,19 @@ public class UserService implements UserDetailsService {
         }
     }
 
+
     public void saveUser(User user, String username, Map<String, String> form){
 
         user.setUsername(username);
 
-        Set <String> roles = Arrays.stream(Role.values())
+        Set<String> roles = Arrays.stream(Role.values())
                 .map(Role::name)
                 .collect(Collectors.toSet());
 
         user.getRoles().clear();
 
         for(String key : form.keySet()){
-            if (roles.contains(key)){
+            if(roles.contains(key)){
                 user.getRoles().add(Role.valueOf(key));
             }
         }
@@ -93,13 +101,16 @@ public class UserService implements UserDetailsService {
         userRepo.save(user);
     }
 
+
     public void updateProfile(User user, String password, String email){
+
         String userEmail = user.getEmail();
 
         boolean isChanged = (email != null && email.equals(userEmail) || userEmail != null && userEmail.equals(email));
 
-        if(isChanged){
+        if (isChanged){
             user.setEmail(email);
+
             if(!StringUtils.isEmpty(email)){
                 user.setActivationCode(UUID.randomUUID().toString());
             }
@@ -108,6 +119,7 @@ public class UserService implements UserDetailsService {
         if(!StringUtils.isEmpty(password)){
             user.setPassword(password);
         }
+
         userRepo.save(user);
         if(isChanged){
             sendMessage(user);

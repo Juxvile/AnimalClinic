@@ -1,6 +1,5 @@
 package myFirstSpringBootApp.service;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -25,6 +24,6 @@ public class MailSenderService {
         simpleMailMessage.setText(message);
 
         javaMailSender.send(simpleMailMessage);
-
     }
 }
+

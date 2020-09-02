@@ -51,8 +51,6 @@ public class User extends AbstractEntity implements UserDetails {
     @NotBlank
     private String email;
 
-    private boolean active;
-
     private String activationCode;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
